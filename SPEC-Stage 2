@@ -1,0 +1,185 @@
+# Technical Specification: FX Hedge Analysis Model for EUR 4.5M Receivable
+
+**Prepared by:** Phuong Christina Doan  
+**Company:** Solar Equipment Division Treasury  
+**Date:** November 7, 2025  
+**Version:** 2.0
+
+---
+
+## 1. Problem Statement
+
+Our firm will receive EUR 4,500,000 in 12 months from a European sales contract. As a USD-reporting entity, we face transaction exposure: adverse EUR/USD movements could reduce dollar proceeds by $225,000–$450,000. We require a quantitative decision framework to evaluate three hedging strategies—forward contracts, money market hedges, and currency options—against remaining unhedged. The model must compute net USD proceeds across exchange rate scenarios, identify breakeven points, and visualize risk-return trade-offs to support treasury's hedge recommendation to the CFO.
+
+---
+
+## 2. Inputs (Known Variables)
+
+### Market Data
+- **Spot Rate (S₀):** 1.0800 USD/EUR (current market rate)
+- **1-Year Forward Rate (F):** 1.0875 USD/EUR (contracted rate)
+- **EUR Interest Rate (r_EUR):** 3.50% per annum (Euribor 12M)
+- **USD Interest Rate (r_USD):** 5.25% per annum (SOFR 12M)
+- **EUR Put Option Premium:** $0.015 per EUR (strike at-the-money)
+- **EUR Put Strike Price (K):** 1.0800 USD/EUR
+
+### Transaction Parameters
+- **Receivable Amount:** EUR 4,500,000
+- **Time to Maturity (T):** 1.0 year (365 days)
+- **Transaction Costs:** 0.10% on spot conversions; 0.05% on forward contracts
+
+### Scenario Analysis Range
+- **Exchange Rate Scenarios:** 1.0500 to 1.1500 USD/EUR in 0.01 increments (101 scenarios)
+- **Base Case:** 1.0800 (current spot)
+- **Stress Scenarios:** EUR depreciation to 1.0500; EUR appreciation to 1.1500
+
+**Data Sources:** Bloomberg terminal (FX rates, forward points), internal treasury desk (transaction costs), options market maker quotes (implied volatility 8.5%).
+
+---
+
+## 3. Assumptions & Constraints
+
+### Simplifying Assumptions
+- **Interest Rate Convention:** Continuous compounding for consistency; actual rates converted from quoted annual conventions
+- **Perfect Markets:** No bid-ask spreads beyond stated transaction costs; full liquidity at quoted rates
+- **Counterparty Risk:** Zero credit risk on forward contracts and borrowed EUR
+- **Tax Neutrality:** Pre-tax analysis; tax effects addressed separately by accounting
+- **Single Payment:** Entire EUR 4.5M received on day 365; no partial payments
+- **Exercise Timing:** European-style option exercised only at maturity
+
+### Operational Constraints
+- **No Operational Hedges:** Analysis excludes natural offsets from EUR-denominated payables
+- **Full Hedge Only:** Model assumes 100% notional coverage (no partial hedging)
+- **Static Hedge:** No dynamic rebalancing or delta hedging strategies
+
+---
+
+## 4. Calculation Flow
+
+### Strategy A: Unhedged Position
+1. Select future spot rate scenario (S_T) from range 1.0500–1.1500
+2. Calculate gross USD proceeds: EUR 4,500,000 × S_T
+3. Deduct spot conversion cost: Gross proceeds × 0.10%
+4. **Output:** Net USD proceeds at scenario S_T
+
+### Strategy B: Forward Contract Hedge
+1. Lock in forward rate F = 1.0875 regardless of future spot
+2. Calculate gross USD proceeds: EUR 4,500,000 × 1.0875 = $4,893,750
+3. Deduct forward contract cost: Gross proceeds × 0.05%
+4. **Output:** Guaranteed net USD proceeds = $4,891,305 (fixed across all scenarios)
+
+### Strategy C: Money Market Hedge
+1. Calculate present value of EUR receivable: PV = EUR 4,500,000 ÷ e^(r_EUR × T)
+2. Borrow PV amount in EUR at 3.50% (creates offsetting EUR liability)
+3. Convert borrowed EUR to USD at spot S₀ = 1.0800
+4. Invest USD proceeds at 5.25% for one year
+5. At maturity: EUR receivable repays EUR loan; USD investment matures
+6. Calculate final USD: [PV × S₀ × e^(r_USD × T)] - transaction costs
+7. **Output:** Synthetic forward proceeds (compare to Strategy B for arbitrage)
+
+### Strategy D: Currency Option Hedge (EUR Put)
+1. Purchase EUR put option: Premium = EUR 4,500,000 × $0.015 = $67,500 paid upfront
+2. Calculate future value of premium: FV_premium = $67,500 × e^(r_USD × T)
+3. For each scenario S_T:
+   - If S_T < K (1.0800): Exercise put, receive K per EUR
+   - If S_T ≥ K: Let put expire, convert at favorable spot S_T
+4. Calculate gross proceeds: MAX(S_T, K) × EUR 4,500,000
+5. Deduct conversion cost and premium future value
+6. **Output:** Net USD proceeds = Gross proceeds - costs - FV_premium
+
+### Breakeven Analysis
+- **Forward vs. Unhedged:** Solve S_T where forward proceeds = unhedged proceeds
+- **Option vs. Forward:** Solve S_T where option proceeds = forward proceeds
+- **Option Participation Range:** Calculate upside capture rate for S_T > K
+
+---
+
+## 5. Outputs
+
+### Summary Tables
+**Table 1: Strategy Comparison Matrix**
+- Rows: 11 key exchange rate scenarios (1.0500, 1.0600, …, 1.1500)
+- Columns: Unhedged | Forward | Money Market | Put Option
+- Values: Net USD proceeds formatted as currency
+
+**Table 2: Cost Analysis**
+- Forward points cost (F - S₀) in USD
+- Money market hedge all-in cost vs. forward
+- Option premium in USD and as % of notional
+- Breakeven spot rates for each strategy pair
+
+**Table 3: Risk Metrics**
+- Standard deviation of proceeds (unhedged only)
+- Downside protection level (options vs. forward)
+- Maximum regret: worst-case opportunity cost per strategy
+
+### Visualizations
+**Chart 1: Payoff Diagram**
+- X-axis: Future spot rate (1.0500–1.1500)
+- Y-axis: Net USD proceeds
+- Four lines (unhedged, forward, money market, put option)
+- Annotate breakeven intersections
+
+**Chart 2: Incremental Value Heatmap**
+- Show difference (option proceeds - forward proceeds) across scenarios
+- Identify premium breakeven point and participation region
+
+### Decision Dashboard
+- **Recommended Strategy Box:** Conditional formatting highlights optimal choice under three risk preferences (maximum certainty, balanced, maximum upside)
+- **Key Metrics Panel:** Guaranteed minimum proceeds | Expected proceeds (probability-weighted) | Cost of protection
+
+---
+
+## 6. Sensitivity Analysis Plan
+
+### Scenario Grid Testing
+- **Primary Sensitivity:** Future spot rate (101 scenarios from 1.0500 to 1.1500)
+- **Secondary Variables:**
+  - EUR interest rate: ±100 bps (2.50%, 3.50%, 4.50%)
+  - USD interest rate: ±100 bps (4.25%, 5.25%, 6.25%)
+  - Option premium: ±20% ($0.012, $0.015, $0.018 per EUR)
+
+### Two-Way Data Tables
+- **Table A:** Option proceeds sensitivity to (spot rate × premium level)
+- **Table B:** Money market proceeds sensitivity to (spot rate × interest rate differential)
+
+### Threshold Analysis
+- Calculate minimum spot rate where unhedged position outperforms forward (downside breakeven)
+- Calculate spot rate where option premium is fully recovered (upside breakeven)
+- Identify indifference curves between strategy pairs
+
+### Stress Testing
+- **EUR Collapse Scenario:** S_T = 1.0000 (26% depreciation)
+- **EUR Surge Scenario:** S_T = 1.2000 (11% appreciation)
+- **Volatility Shock:** Recalculate option premium at 12% implied volatility (vs. base 8.5%)
+
+---
+
+## 7. Limitations & Next Steps
+
+### Excluded from Scope
+- **Hedge Accounting Treatment:** ASC 815 designation and effectiveness testing deferred to accounting team
+- **Partial Hedge Strategies:** Analysis assumes 100% notional coverage; ratio hedging not modeled
+- **Exotic Options:** Excludes collars, participations, knock-outs (vanilla put only)
+- **Dynamic Hedging:** Static comparison; no time-series rebalancing logic
+- **Correlation Effects:** Does not model portfolio effects if firm has offsetting EUR exposures
+
+### Model Validation Requirements
+- Verify money market hedge replicates forward rate under interest rate parity
+- Confirm put option payoff: MAX(0, K - S_T) matches expected intrinsic value
+- Cross-check forward points calculation: (F - S₀)/S₀ ≈ (r_USD - r_EUR) × T
+
+### Stage 3 Implementation Bridge
+This specification provides complete inputs for Excel model construction:
+- **Sheet 1 (Inputs):** All market data with data validation dropdowns
+- **Sheet 2 (Calculations):** Four strategy modules with cell references to inputs
+- **Sheet 3 (Scenarios):** 101-row scenario table with formulas pulling from calculations
+- **Sheet 4 (Charts):** Embedded payoff diagram and sensitivity tables
+- **Sheet 5 (Dashboard):** Executive summary with conditional formatting
+
+### Final Deliverable Preview
+Stage 3 model will generate a one-page executive recommendation memo structured as: (1) quantitative results summary showing forward hedge guarantees $4.89M vs. option floor of $4.83M with unlimited upside, (2) breakeven analysis indicating option outperforms if EUR exceeds 1.0950, and (3) specific hedge recommendation based on management's risk tolerance and euro outlook.
+
+---
+
+**End of Technical Specification**
