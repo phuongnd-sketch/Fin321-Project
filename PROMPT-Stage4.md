@@ -5,8 +5,8 @@ Create a professional Excel spreadsheet that models forward contracts, money mar
 
 ## CONTEXT FILES (GitHub)
 Use the logic and specifications from:
-- https://github.com/example/fin321/stage2-spec.md
-- https://github.com/example/fin321/stage3-skeleton.xlsx
+- https://github.com/phuongnd-sketch/Fin321-Project/blob/359648c51ed75d9438000aa779bba6d4e10c5f91/SPEC-Stage%202.md
+- https://github.com/phuongnd-sketch/Fin321-Project/blob/main/stage3-model-DOAN%20(2).xlsx
 
 ## CONTEXT
 I am a US-based company expecting to receive EUR 2,850,000 in 360 days. I need to evaluate four hedging strategies:
