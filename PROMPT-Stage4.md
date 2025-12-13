@@ -3,6 +3,11 @@
 ## GOAL
 Create a professional Excel spreadsheet that models forward contracts, money market hedges, and currency option hedges for a EUR receivable. The model must calculate net USD receipts for each strategy and include sensitivity analysis showing outcomes across different future spot rates.
 
+## CONTEXT FILES (GitHub)
+Use the logic and specifications from:
+- https://github.com/example/fin321/stage2-spec.md
+- https://github.com/example/fin321/stage3-skeleton.xlsx
+
 ## CONTEXT
 I am a US-based company expecting to receive EUR 2,850,000 in 360 days. I need to evaluate four hedging strategies:
 1. Unhedged (convert at future spot rate)
@@ -14,7 +19,18 @@ The model should help determine which strategy maximizes expected USD receipts w
 
 ## INPUT VARIABLES (Real Market Data)
 
-### Transaction Details
+FC_AMT = 2,850,000  
+Spot = 1.0934  
+Forward = 1.0875  
+r_USD = 5.10%  
+r_EUR = 2.71%  
+K_put = 1.0900  
+K_call = 1.0900  
+Premium_put = 0.017  
+Premium_call = 0.022  
+T_days = 360
+
+### Detailed Variable Breakdown
 - **FC_AMT** = 2,850,000 EUR (foreign currency receivable)
 - **T_DAYS** = 360 days (time to receipt)
 - **T_YRS** = 1.0 years (360/360 day count)
@@ -32,6 +48,12 @@ The model should help determine which strategy maximizes expected USD receipts w
 - **PREM_CALL** = 0.0220 USD/EUR (call option premium per EUR)
 
 ## SPREADSHEET REQUIREMENTS
+
+Use named ranges.  
+Color code inputs yellow, formulas green, outputs gray, assumptions blue.  
+Include forward hedge, money market hedge, option hedge, and sensitivity analysis.
+
+### Detailed Specifications
 
 ### Named Ranges (Must Use These Exact Names)
 Define the following named ranges for all input variables:
@@ -113,7 +135,11 @@ Gray cells showing:
 - Worst-case scenario for each strategy (min value from sensitivity table)
 - Break-even spot rates where strategies have equal outcomes
 
-## MODEL LOGIC (PSEUDOCODE)
+## MODEL LOGIC
+
+Insert pseudocode from Stage 2 spec.
+
+### Detailed Pseudocode
 
 ```
 // INPUTS
@@ -173,6 +199,10 @@ END FOR
 
 ## VERIFICATION REQUIREMENTS
 
+Validate parity and confirm all named ranges.
+
+### Detailed Verification Steps
+
 The AI must validate:
 
 1. **Interest Rate Parity Check**:
@@ -203,6 +233,10 @@ The AI must validate:
 4. Test file by changing one input and confirming all dependent cells update
 
 ## EXPORT FORMAT
+
+Return a downloadable Excel file.
+
+### Export Specifications
 
 Generate a complete, working Excel file (.xlsx format) that can be:
 - Downloaded immediately
